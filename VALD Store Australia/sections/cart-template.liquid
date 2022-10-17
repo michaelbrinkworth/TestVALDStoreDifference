@@ -1,0 +1,299 @@
+{%- capture section_settings -%}
+{
+  "type": {{ settings.cart_type | json }},
+  "itemCount": {{ cart.item_count }},
+  "drawer": false,
+  "hasShippingEstimator": {% if section.settings.show_shipping_estimator and cart.item_count > 0 %}true{% else %}false{% endif %}
+}
+{%- endcapture -%}
+<section data-section-id="{{ section.id }}" data-section-type="cart" data-section-settings='{{ section_settings }}'>
+  {%- if cart.item_count == 0 -%}
+    <div class="EmptyState">
+      <div class="Container">
+        <h1 class="EmptyState__Title Heading u-h5">{{ 'cart.general.empty' | t }}</h1>
+
+        {%- if settings.cart_show_free_shipping_threshold -%}
+          {%- assign threshold_in_cents = settings.cart_free_shipping_threshold | times: 100 -%}
+          {%- capture remaining_amount -%}<span>{{ cart.total_price | minus: threshold_in_cents | abs | money_without_trailing_zeros }}</span>{%- endcapture -%}
+
+          <p class="Text--subdued">{{- 'cart.general.free_shipping_remaining_html' | t: remaining_amount: remaining_amount -}}</p>
+        {%- endif -%}
+
+        <a href="https://valdstore.com/products/dynamo" class="EmptyState__Action Button Button--primary">{{ 'cart.general.empty_button' | t }}</a>
+      </div>
+    </div>
+  {%- else -%}
+    <div class="Container">
+      <header class="PageHeader">
+        <div class="SectionHeader SectionHeader--center">
+          <h1 class="SectionHeader__Heading Heading u-h1">{{ 'cart.general.title' | t }}</h1>
+
+          {%- if settings.cart_show_free_shipping_threshold -%}
+            {%- assign threshold_in_cents = settings.cart_free_shipping_threshold | times: 100 -%}
+
+            <p class="SectionHeader__Description Text--subdued">
+              {%- if cart.total_price >= threshold_in_cents -%}
+                {{- 'cart.general.free_shipping' | t -}}
+              {%- else -%}
+                {%- capture remaining_amount -%}<span>{{ cart.total_price | minus: threshold_in_cents | abs | money_without_trailing_zeros }}</span>{%- endcapture -%}
+                {{- 'cart.general.free_shipping_remaining_html' | t: remaining_amount: remaining_amount -}}
+              {%- endif -%}
+            </p>
+          {%- endif -%}
+        </div>
+      </header>
+
+      <div class="PageContent">
+        <form action="{{ routes.cart_url }}" method="POST" class="Cart Cart--expanded" novalidate>
+          <input type="hidden" name="attributes[collection_mobile_items_per_row]" value="">
+          <input type="hidden" name="attributes[collection_desktop_items_per_row]" value="">
+
+          {% render 'cart-items' %}
+          <div class="upsellfooter"></div>
+          <div></div>
+        
+	<div class="Cart__NoteContainer" style="padding: 25px 0px 10px 0px; display: block !important; width: 100%;border-top: 1px solid var(--border-color);font-size: 18px;">
+      <p style="font-size:14px;color: #7f7f7f !important;">DynaMo is available as a three-year subscription term that can be paid monthly or annually. The minimum total cost for a three-year subscription is $3,088.80 plus shipping.</p>
+
+   {% comment %}
+      function valdAccountChecked() {
+  var checkedid = document.getElementById("idhasvaldaccount");
+ if((document.getElementById("cart-note").value.length == 0) || (checkedid.checked == true)){
+  alert("Hello! I am an alert box!!");
+
+    document.getElementById("fillinformerror").style.display ="block";
+ document.getElementById('fillinformerror').scrollIntoView({
+          behavior: 'smooth', block: 'center'
+        });
+
+
+        document.getElementById("realcheckout").style.display ="none";
+         document.getElementById("optionmustbeselectedbutton").style.display ="block";
+
+} else {
+  //this area will show "please select an option" and scroll to it.
+console.log("hello world")
+   document.getElementById("error").style.display ="block";
+             document.getElementById("fillinformerror").style.display ="none";
+          document.getElementById('error').scrollIntoView({
+          behavior: 'smooth', block: 'center'
+        });
+    }
+}
+{% endcomment %}
+        <p style="margin-bottom:0px !important;font-size:20px;font-weight:bold;">Do you have a <a href="https://hub.valdperformance.com/" style="text-decoration:underline;" target="_blank">VALD Hub account</a>?*</p>
+        <input type="radio" id="idhasvaldaccount" name="accountoption" class="checkboxesvaldaccount" onclick="hasValdAccount()">
+        <label for="idhasvaldaccount">Yes</label> 
+        <br>
+        <input type="radio" id="idnovaldaccount" name="accountoption" onclick="noValdAccount()">
+        <label for="idnovaldaccount">No</label> 
+        <p id="error"  style="display:none;color:red;margin-bottom:10px !important;">Select an option.</p>
+        <p id="fillinformerror"  style="display:none;color:red;margin-bottom:10px !important;">Fill in your VALD Hub account details.</p>
+
+
+
+
+        <script>
+
+
+
+// show errors
+function valdAccountChecked() {
+  var checkedid = document.getElementById("idhasvaldaccount");
+  if ((document.getElementById("cart-note").value.length == 0) && (checkedid.checked == true)) {
+    document.getElementById("error").style.display ="none";
+
+    document.getElementById("fillinformerror").style.display ="block";
+ document.getElementById('fillinformerror').scrollIntoView({
+          behavior: 'smooth', block: 'center'
+        });
+
+
+        document.getElementById("realcheckout").style.display ="none";
+         document.getElementById("optionmustbeselectedbutton").style.display ="block";
+
+} else {
+  //this area will show "please select an option" and scroll to it.
+console.log("hello world")
+   document.getElementById("error").style.display ="block";
+             document.getElementById("fillinformerror").style.display ="none";
+          document.getElementById('error').scrollIntoView({
+          behavior: 'smooth', block: 'center'
+        });
+    }
+}
+
+
+
+
+
+function removeDisabled(){
+ if(document.getElementById("cart-note").value.length == 0){
+// if we don't have anything in the input then hide real checkout
+           document.getElementById("realcheckout").style.display ="none";
+           // then display old checkout
+           document.getElementById("optionmustbeselectedbutton").style.display ="block";
+ } else {
+  //if we have input then display real checkout
+document.getElementById("error").style.display ="none";
+
+           document.getElementById("realcheckout").style.display ="block";
+           document.getElementById("optionmustbeselectedbutton").style.display ="none";
+
+
+ }
+}
+
+//user has account display
+        function hasValdAccount() {
+          var checkedid = document.getElementById("idhasvaldaccount");
+          var accountform = document.getElementById("displaycartnotes");
+          var defaultnotes = document.getElementById("nocartnotes");
+          if (checkedid.checked == true){
+            document.getElementById("error").style.display ="none";
+            accountform.style.display = "block";
+           //hide real checkout
+        document.getElementById("realcheckout").style.display ="none";
+        //show fake checkout
+         document.getElementById("optionmustbeselectedbutton").style.display ="block";
+
+          } else {
+            accountform.style.display = "none";
+          }
+        }
+
+//User does not have a vald account
+function noValdAccount() {
+          var checkedno = document.getElementById("idnovaldaccount");
+          var accountform = document.getElementById("displaycartnotes");
+          var defaultnotes = document.getElementById("nocartnotes");
+          if (checkedno.checked == true){
+                accountform.style.display = "none";
+//display real checkout 
+document.getElementById("realcheckout").style.display ="block";
+document.getElementById("optionmustbeselectedbutton").style.display ="none";
+document.getElementById("error").style.display ="none";
+document.getElementById("fillinformerror").style.display ="none";
+
+
+ const btnremove = document.getElementById('realcheckout');
+
+          } 
+        }
+
+ </script>
+
+
+            
+
+
+
+
+<div id="displaycartnotes" style="display:none;">
+                <textarea oninput="removeDisabled()" class="Cart__Note Form__Textarea"  name="note" id="cart-note" rows="4" placeholder="Please enter your VALD Hub email and org ID to continue." required="" >{{ cart.note }}</textarea>
+            </div>
+            </div>
+
+            {% comment %}
+end of notes
+{% endcomment %}
+          <footer class="Cart__Footer" style="border-top:none;">
+
+
+
+            {%- if settings.cart_enable_notes -%}
+              <div class="Cart__NoteContainer hidefornownote">
+                <span class="Cart__NoteButton">{{ 'cart.general.add_note' | t }}</span>
+                <textarea class="Cart__Note Form__Textarea" name="note" id="cart-note" rows="4" placeholder="{{ 'cart.general.note_placeholder' | t }}">{{ cart.note }}</textarea>
+              </div>
+            {%- endif -%}
+
+            <div class="Cart__Recap">
+              {%- capture shipping_and_taxes_notice -%}{{ 'cart.general.shipping_and_taxes_notice' | t }}{%- endcapture -%}
+
+              {%- if cart.cart_level_discount_applications != blank -%}
+                {%- for discount_application in cart.cart_level_discount_applications -%}
+                  <p class="Cart__Discount Heading u-h6">{{ 'cart.general.discount' | t }} ({{ discount_application.title }}): -<span>{{ discount_application.total_allocated_amount | money_without_trailing_zeros }}</span></p>
+                {%- endfor -%}
+              {%- endif -%}
+
+              <p class="Cart__Total Heading u-h6">{{ 'cart.general.total' | t }}: <span>{{ cart.total_price | money_without_trailing_zeros }}</span></p>
+
+              {%- if shipping_and_taxes_notice != blank -%}
+                <p class="Cart__Taxes Text--subdued">{{ shipping_and_taxes_notice }}</p>
+              {%- endif -%}
+  <button type="submit" name="checkout" id="realcheckout" class="Cart__Checkout Button Button--primary Button--full" style="display:none;">{{ 'cart.general.checkout' | t }}</button>
+  <button type="button" id="optionmustbeselectedbutton" class="Cart__Checkout Button Button--primary Button--full" style="" onclick="valdAccountChecked()">Checkout</button>
+            </div>
+          </footer>
+        </form>
+
+        {%- if section.settings.show_shipping_estimator -%}
+          <div class="Section Section--spacingExtraLarge">
+            <div class="Panel">
+              <h2 class="Panel__Title Heading u-h2">{{ 'cart.shipping_estimator.title' | t }}</h2>
+
+              <div class="Panel__Content">
+                <div class="ShippingEstimator">
+                  <div class="ShippingEstimator__Form">
+                    <div class="ShippingEstimator__Country Form__Select Select Select--primary">
+                      {%- render 'icon' with 'select-arrow' -%}
+                      <select name="country" title="{{ 'cart.shipping_estimator.country' | t }}" data-default="{% if customer %}{{ customer.default_address.country }}{% elsif section.settings.shipping_estimator_default_country != '' %}{{ section.settings.shipping_estimator_default_country }}{% endif %}">{{ all_country_option_tags }}</select>
+                    </div>
+
+                    <div class="ShippingEstimator__Province Form__Select Select Select--primary" style="display: none">
+                      {%- render 'icon' with 'select-arrow' -%}
+                      <select name="province" title="{{ 'cart.shipping_estimator.province' | t }}"></select>
+                    </div>
+
+                    <input type="text" class="ShippingEstimator__Zip Form__Input" name="zip" placeholder="{{ 'cart.shipping_estimator.zip_code' | t }}">
+
+                    <button type="button" class="ShippingEstimator__Submit Button Button--primary">{{ 'cart.shipping_estimator.estimate' | t }}</button>
+                  </div>
+
+                  <div class="ShippingEstimator__Error Alert Alert--error" style="display: none"></div>
+                  <div class="ShippingEstimator__Results">
+                    <div class="ShippingEstimator__ResultsInner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+</section>
+{% schema %}
+{
+  "name": "Cart page",
+  "class": "shopify-section--bordered",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_shipping_estimator",
+      "label": "Show shipping rates calculator",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "shipping_estimator_default_country",
+      "label": "Default country to use",
+      "info": "If your customer is logged-in, the country in his default shipping address will be selected.",
+      "default": "United States"
+    }
+  ]
+}
+{% endschema %}.
+
+{% style %}
+  .features--heading-large .u-h1, .features--heading-large .Rte h1{
+      font-size: 32px;
+      font-weight: bold;
+  }
+  @media screen and (min-width: 641px){
+    .PageHeader{
+        margin: 50px 0px 20px 0px;
+  }
+}
+{% endstyle %}
